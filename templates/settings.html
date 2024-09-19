@@ -1,0 +1,15 @@
+{% include "head.html" %}
+<div class="content">
+  <h1>ODR-DabMux Settings</h1>
+
+  <div class="section">
+  <form action="/settings" method="post">
+    <fieldset>
+      <legend>General</legend>
+      <div><label for="name">Name of this instance:</label><input class="textinput" type="text" name="name" value="{{ conf.name }}"></div>
+    </fieldset>
+    <div><input class="btn" type="submit" value="Update"></div>
+  </form>
+</div>
+{% include "foot.html" %}
+{# vi:set et sw=2 ts=2: #}

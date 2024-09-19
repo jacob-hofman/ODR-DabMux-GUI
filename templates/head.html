@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ODR-DabMux - {{ title }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css" type="text/css">
+    <link rel="stylesheet" href="/static/font-awesome/css/font-awesome.min.css">
+    {% for js in page.styles() %}
+    <script src="/static/{{ js }}" defer></script>
+    {% endfor %}
+  </head>
+  <body>
+    <div class="flex">
+      <nav>
+        <div class="head-nav-topdiv">
+          <div class="nav-title">
+            <p class="text-lg">ODR-DabMux</p>
+            <p class="text-lg"><b>{{ conf.name }}</b></p>
+          </div>
+
+          <div class="div-menu">
+            <ul class="ul-menu">
+              <a href="/">
+                <li class="{% if page == ActivePage::Dashboard %}menu-active{% else %}menu-entry{% endif %}">
+                  <i class="icon-fa fa fa-home" aria-hidden="true"></i><span>Dashboard</span>
+                </li>
+              </a>
+              <a href="/settings" class="">
+                <li class="{% if page == ActivePage::Settings %}menu-active{% else %}menu-entry{% endif %}">
+                  <i class="icon-fa fa fa-cog" aria-hidden="true"></i><span>Settings</span>
+                </li>
+              </a>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <main>
+{# vi:set et sw=2 ts=2: #}
