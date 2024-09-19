@@ -22,7 +22,8 @@ use crate::SharedState;
 pub async fn serve(port: u16, shared_state: SharedState) {
     let app = Router::new()
         .route("/", get(dashboard))
-        .route("/settings", get(show_settings).post(post_settings))
+        .route("/settings", get(show_settings))
+        .route("/api/settings", post(post_settings))
         .nest_service("/static", ServeDir::new("static"))
         /* For an example for timeouts and tracing, have a look at the git history */
         .with_state(shared_state);
@@ -45,7 +46,7 @@ impl ActivePage {
     fn styles(&self) -> Vec<&'static str> {
         match self {
             ActivePage::Dashboard => vec![],
-            ActivePage::Settings => vec![],
+            ActivePage::Settings => vec!["settings.js", "main.js"],
             ActivePage::None => vec![],
         }
     }
@@ -99,60 +100,32 @@ struct SettingsAppliedTemplate<'a> {
     error_reason: String,
 }
 
-#[derive(Deserialize, Debug)]
-struct FormConfig {
-    name: String,
-}
-
-impl TryFrom<FormConfig> for config::Config {
-    type Error = anyhow::Error;
-
-    fn try_from(value: FormConfig) -> Result<Self, Self::Error> {
-        Ok(config::Config {
-            name: value.name,
-        })
-    }
-}
-
 async fn post_settings(
     State(state): State<SharedState>,
-    Form(input): Form<FormConfig>) -> (StatusCode, SettingsAppliedTemplate<'static>) {
-    match config::Config::try_from(input) {
-        Ok(c) => {
-            match c.store() {
-                Ok(()) => {
-                    state.lock().unwrap().conf.clone_from(&c);
+    Json(conf): Json<config::Config>) -> (StatusCode, SettingsAppliedTemplate<'static>) {
 
-                    (StatusCode::OK, SettingsAppliedTemplate {
-                        title: "Settings",
-                        conf: c,
-                        page: ActivePage::None,
-                        ok: true,
-                        error_message: "",
-                        error_reason: "".to_owned(),
-                    })
-                }
-                Err(e) => {
-                    (StatusCode::INTERNAL_SERVER_ERROR, SettingsAppliedTemplate {
-                        title: "Settings",
-                        conf : c,
-                        page: ActivePage::None,
-                        ok: false,
-                        error_message: "Failed to store config",
-                        error_reason: e.to_string(),
-                    })
-                },
-            }
-        },
+    match conf.store() {
+        Ok(()) => {
+            state.lock().unwrap().conf.clone_from(&conf);
+
+            (StatusCode::OK, SettingsAppliedTemplate {
+                title: "Settings",
+                conf,
+                page: ActivePage::None,
+                ok: true,
+                error_message: "",
+                error_reason: "".to_owned(),
+            })
+        }
         Err(e) => {
-            (StatusCode::BAD_REQUEST, SettingsAppliedTemplate {
-                        title: "Settings",
-                        conf: state.lock().unwrap().conf.clone(),
-                        page: ActivePage::None,
-                        ok: false,
-                        error_message: "Error interpreting POST data",
-                        error_reason: e.to_string(),
-                    })
+            (StatusCode::INTERNAL_SERVER_ERROR, SettingsAppliedTemplate {
+                title: "Settings",
+                conf,
+                page: ActivePage::None,
+                ok: false,
+                error_message: "Failed to store config",
+                error_reason: e.to_string(),
+            })
         },
     }
 }
