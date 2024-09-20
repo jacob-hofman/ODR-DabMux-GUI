@@ -1,19 +1,15 @@
 use std::net::SocketAddr;
-use anyhow::{anyhow, Context};
 use askama::Template;
 use axum::{
-    Form,
     Json,
     Router,
     extract::State,
-    extract::{ws::{Message, WebSocket, WebSocketUpgrade}, ConnectInfo},
     http::StatusCode,
-    response::IntoResponse,
     routing::{get, post},
 };
 use serde::Deserialize;
 
-use log::{debug, info, warn, error};
+use log::info;
 use tower_http::services::ServeDir;
 
 use crate::config;
@@ -149,6 +145,8 @@ async fn post_settings(
     match conf.store() {
         Ok(()) => {
             state.lock().unwrap().conf.clone_from(&conf);
+
+            info!("{}", conf.dump_to_json());
 
             (StatusCode::OK, SettingsAppliedTemplate {
                 title: "Settings",

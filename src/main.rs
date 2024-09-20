@@ -1,6 +1,5 @@
 use std::sync::{Arc, Mutex};
-use anyhow::{anyhow, Context};
-use log::{debug, info, warn, error};
+use log::info;
 
 mod ui;
 mod config;

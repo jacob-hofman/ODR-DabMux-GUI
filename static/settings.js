@@ -26,6 +26,7 @@ async function btn_settings_send() {
     const destList = services.querySelectorAll("p.service");
     for (let i = 0; i < destList.length; i++) {
         data.services.push({
+            'unique_id': destList[i].querySelector("input.srv_unique_id").value,
             'sid': parseInt(destList[i].querySelector("input.srv_sid").value, 16),
             'ecc': parseInt(destList[i].querySelector("input.srv_ecc").value, 16),
             'label': destList[i].querySelector("input.srv_label").value,

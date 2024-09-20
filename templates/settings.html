@@ -37,6 +37,7 @@
   <div class="section">
     <template id="service_template">
       <p class="service">
+      <input class="textinput srv_unique_id" type="text" placeholder="Service Unique ID">
       <input class="textinput srv_sid" type="text" placeholder="Service ID in hex">
       <input class="textinput srv_ecc" type="text" placeholder="Service ECC in hex">
       <input class="textinput srv_label" type="text" placeholder="Service Label">
@@ -50,6 +51,8 @@
     <div id="services">
       {% for srv in conf.services %}
       <p class="service">
+      <input class="textinput srv_unique_id" type="text" placeholder="Service Unique ID"
+                                                         value="{{ srv.unique_id }}">
       <input class="textinput srv_sid" type="text" placeholder="Service ID in hex"
                                                    value="{{ srv.sid_hex() }}">
       <input class="textinput srv_ecc" type="text" placeholder="Service ECC in hex"
