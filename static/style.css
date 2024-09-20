@@ -1,7 +1,6 @@
 :root {
     --main-color:rgb(7 89 133);
     --bg-color:rgb(224 242 254);
-    --title-color:rgb(224 242 254);
     --title-bg-color:rgb(125 211 252);
     --divide-color:rgb(125 211 252);
     --active-bg-color:rgb(12 74 110);
@@ -95,8 +94,9 @@ ul {
 }
 
 .text-lg {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
+    font-size: 1.4rem;
+    line-height: 2rem;
+    font-weight: bold;
 }
 
 .head-nav-topdiv {
@@ -114,22 +114,12 @@ ul {
     border-radius: 0.5rem;
     margin-top: 0.5rem;
     background-color: var(--title-bg-color);
-    color: var(--title-color);
+    color: var(--main-color);
 }
 
 main {
     padding: 1rem;
     flex: 1 1 auto;
-}
-
-h1 {
-    font-size: 1.2rem;
-    line-height: 1.75rem;
-    font-weight: 700;
-}
-
-h2 {
-    font-weight: 700;
 }
 
 a {

@@ -12,6 +12,7 @@ async function btn_settings_remove_service(element_clicked) {
 async function btn_settings_send() {
     let data = {
         'instance_name': document.getElementById('instance_name').value,
+        'dabmux_config_location': document.getElementById('dabmux_config_location').value,
         'tist': document.getElementById('tist').checked,
         'tist_offset': parseInt(document.getElementById('tist_offset').value, 10),
         'ensemble_id': parseInt(document.getElementById('ensemble_id').value, 16),

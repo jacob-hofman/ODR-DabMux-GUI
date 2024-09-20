@@ -9,7 +9,6 @@ use axum::{
 };
 use serde::Deserialize;
 
-use log::info;
 use tower_http::services::ServeDir;
 
 use crate::config;
@@ -35,7 +34,6 @@ pub async fn serve(port: u16, shared_state: SharedState) {
 enum ActivePage {
     Dashboard,
     Settings,
-    None,
 }
 
 impl ActivePage {
@@ -44,7 +42,6 @@ impl ActivePage {
         match self {
             ActivePage::Dashboard => vec!["dashboard.js", "main.js"],
             ActivePage::Settings => vec!["settings.js", "main.js"],
-            ActivePage::None => vec![],
         }
     }
 }
@@ -95,7 +92,7 @@ struct SetRc {
 
 async fn post_rc(
     State(state): State<SharedState>,
-    Json(set_rc): Json<SetRc>) -> (StatusCode, Json<serde_json::Value>) {
+    Json(set_rc): Json<SetRc>) -> (StatusCode, String) {
 
     let set_rc_result = {
         let mut st = state.lock().unwrap();
@@ -103,11 +100,8 @@ async fn post_rc(
     };
 
     match set_rc_result {
-        Ok(v) => (StatusCode::OK, Json(v)),
-        Err(e) => {
-            let e_str = serde_json::Value::String(e.to_string());
-            (StatusCode::BAD_REQUEST, Json(e_str))
-        },
+        Ok(v) => (StatusCode::OK, v.as_str().or(Some("")).unwrap().to_owned()),
+        Err(e) => (StatusCode::BAD_REQUEST, e.to_string()),
     }
 }
 
@@ -127,45 +121,20 @@ async fn show_settings(State(state): State<SharedState>) -> SettingsTemplate<'st
     }
 }
 
-#[derive(Template)]
-#[template(path = "settings_applied.html")]
-struct SettingsAppliedTemplate<'a> {
-    title: &'a str,
-    page: ActivePage,
-    conf: config::Config,
-    ok: bool,
-    error_message: &'a str,
-    error_reason: String,
-}
-
 async fn post_settings(
     State(state): State<SharedState>,
-    Json(conf): Json<config::Config>) -> (StatusCode, SettingsAppliedTemplate<'static>) {
+    Json(conf): Json<config::Config>) -> (StatusCode, String) {
 
     match conf.store() {
         Ok(()) => {
             state.lock().unwrap().conf.clone_from(&conf);
 
-            info!("{}", conf.dump_to_json());
-
-            (StatusCode::OK, SettingsAppliedTemplate {
-                title: "Settings",
-                conf,
-                page: ActivePage::None,
-                ok: true,
-                error_message: "",
-                error_reason: "".to_owned(),
-            })
+            match conf.write_dabmux_json() {
+                Ok(()) => (StatusCode::OK, "".to_owned()),
+                Err(e) => (StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to write odr-dabmux config: {}", e.to_string()))
+            }
         }
-        Err(e) => {
-            (StatusCode::INTERNAL_SERVER_ERROR, SettingsAppliedTemplate {
-                title: "Settings",
-                conf,
-                page: ActivePage::None,
-                ok: false,
-                error_message: "Failed to store config",
-                error_reason: e.to_string(),
-            })
-        },
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to write UI config: {}", e.to_string()))
     }
 }

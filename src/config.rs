@@ -1,5 +1,6 @@
 use std::{collections::HashMap, fs};
 use anyhow::Context;
+use log::error;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -54,6 +55,7 @@ impl Service {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     pub instance_name: String,
+    pub dabmux_config_location: String,
     pub tist: bool,
     pub tist_offset: i32,
     // TODO tai_clock_bulletins
@@ -79,6 +81,7 @@ impl Default for Config {
     fn default() -> Self {
         Config {
             instance_name: "CHANGEME".to_owned(),
+            dabmux_config_location: "/etc/odr-dabmux.json".to_owned(),
             tist: true,
             tist_offset: 0,
             ensemble_id: 0x4FFF,
@@ -108,7 +111,11 @@ impl Config {
     pub fn load() -> anyhow::Result<Self> {
         if std::path::Path::new(CONFIGFILE).exists() {
             let file_contents = fs::read_to_string(CONFIGFILE)?;
-            toml::from_str(&file_contents).context("parsing config file")
+            toml::from_str(&file_contents)
+                .or_else(|e| {
+                    error!("Failed to read existing config file: {}", e);
+                    Ok(Default::default())
+                })
         }
         else {
             Ok(Default::default())
@@ -120,7 +127,7 @@ impl Config {
             .context("writing config file")
     }
 
-    pub fn dump_to_json(&self) -> serde_json::Value {
+    pub fn write_dabmux_json(&self) -> anyhow::Result<()> {
         let now = chrono::Utc::now().to_rfc3339();
 
         let mut services = HashMap::new();
@@ -150,7 +157,7 @@ impl Config {
                 }));
         }
 
-        json!({
+        let new_conf = json!({
             "_comment": format!("Generated at {} by odr-dabmux-gui", now),
             "general": {
                 "dabmode": 1,
@@ -186,6 +193,9 @@ impl Config {
                     }
                 }
             }
-        })
+        });
+
+        fs::write(&self.dabmux_config_location, serde_json::to_string_pretty(&new_conf)?)
+            .context("writing dabmux config file")
     }
 }

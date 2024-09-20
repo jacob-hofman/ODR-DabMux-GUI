@@ -4,7 +4,12 @@
   <div class="section">
     <h2>General</h2>
     <div class="setting-entry">
-      <label for="instance_name">Name of this instance:</label><input class="textinput" type="text" id="instance_name" value="{{ conf.instance_name }}">
+      <label for="instance_name">Name of this instance:</label>
+      <input class="textinput" type="text" id="instance_name" value="{{ conf.instance_name }}">
+    </div>
+    <div class="setting-entry">
+      <label for="dabmux_config_location">ODR-DabMux JSON config to write:</label>
+      <input class="textinput" type="text" id="dabmux_config_location" value="{{ conf.dabmux_config_location }}">
     </div>
     <div class="setting-entry">
       <label for="tist">Enable TIST:</label>
