@@ -2,12 +2,52 @@
 <div class="content">
   <h1>ODR-DabMux Dashboard</h1>
   <div class="section">
-    <h2>Remote control</h2>
+    <h2>Input Stats</h2>
 
-    {% if let Some(e) = errors %}
+    {% if let Some(e) = stats_errors %}
     <p>Error!: {{ e }}</p>
     {% endif %}
 
+    {% if let Some(s) = stats %}
+    <p>ODR-DabMux version {{ s.version }}</p>
+    <table>
+      <tr>
+      <th>ident</th><th>maxfill</th><th>minfill</th>
+      <th>under</th><th>over</th><th>audioleft</th>
+      <th>audioright</th><th>peakleft</th><th>peakright</th>
+      <th>state</th><th>version</th><th>uptime</th><th>offset</th>
+      </tr>
+      {% for (ident, is) in s.input_stats %}
+      <tr>
+        <td>{{ ident }}</td>
+        <td>{{ is.max_fill }}</td>
+        <td>{{ is.min_fill }}</td>
+        <td>{{ is.num_underruns }}</td>
+        <td>{{ is.num_overruns }}</td>
+        <td>{{ is.peak_left }}</td>
+        <td>{{ is.peak_right }}</td>
+        <td>{{ is.peak_left_slow }}</td>
+        <td>{{ is.peak_right_slow }}</td>
+        <td>{{ is.state.clone().or(Some("?".to_owned())).unwrap() }}</td>
+        <td>{{ is.version.clone().or(Some("?".to_owned())).unwrap() }}</td>
+        <td>
+        {% if let Some(u) = is.uptime %}
+        {{ u }}
+        {% else %}
+        N/A
+        {% endif %}
+        </td>
+        <td>{{ is.last_tist_offset }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+  </div>
+  <div class="section">
+    <h2>Remote Control</h2>
+    {% if let Some(e) = params_errors %}
+    <p>Error!: {{ e }}</p>
+    {% endif %}
     <table>
       <tr><th>Module</th><th>Parameter</th><th>Value</th></tr>
       {% for p in params %}

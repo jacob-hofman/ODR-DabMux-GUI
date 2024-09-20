@@ -7,6 +7,7 @@ use axum::{
     http::StatusCode,
     routing::{get, post},
 };
+use log::info;
 use serde::Deserialize;
 
 use tower_http::services::ServeDir;
@@ -52,26 +53,31 @@ struct DashboardTemplate<'a> {
     title: &'a str,
     page: ActivePage,
     conf: config::Config,
-    errors: Option<String>,
     params: Vec<crate::dabmux::Param>,
+    params_errors: Option<String>,
+    stats: Option<crate::dabmux::Stats>,
+    stats_errors: Option<String>,
 }
 
 async fn dashboard(State(state): State<SharedState>) -> DashboardTemplate<'static> {
-    let (conf, params_result) = {
+    let (conf, params_result, stats_result) = {
         let mut st = state.lock().unwrap();
 
         let params_result = st.dabmux.get_rc_parameters();
+        let stats_result = st.dabmux.get_stats();
+        info!("STATS: {:?}", stats_result);
 
-        (st.conf.clone(), params_result)
+        (st.conf.clone(), params_result, stats_result)
     };
 
-    let (params, errors) = match params_result {
-        Ok(v) => {
-            (v, None)
-        },
-        Err(e) => {
-            (Vec::new(), Some(format!("{}", e)))
-        },
+    let (params, params_errors) = match params_result {
+        Ok(v) => (v, None),
+        Err(e) => (Vec::new(), Some(format!("{}", e))),
+    };
+
+    let (stats, stats_errors) = match stats_result {
+        Ok(v) => (Some(v), None),
+        Err(e) => (None, Some(format!("{}", e))),
     };
 
     DashboardTemplate {
@@ -79,7 +85,9 @@ async fn dashboard(State(state): State<SharedState>) -> DashboardTemplate<'stati
         conf,
         page: ActivePage::Dashboard,
         params,
-        errors,
+        params_errors,
+        stats,
+        stats_errors,
     }
 }
 
@@ -100,7 +108,7 @@ async fn post_rc(
     };
 
     match set_rc_result {
-        Ok(v) => (StatusCode::OK, v.as_str().or(Some("")).unwrap().to_owned()),
+        Ok(()) => (StatusCode::OK, "".to_owned()),
         Err(e) => (StatusCode::BAD_REQUEST, e.to_string()),
     }
 }
