@@ -4,9 +4,11 @@ use log::{debug, info, warn, error};
 
 mod ui;
 mod config;
+mod dabmux;
 
 struct AppState {
     conf : config::Config,
+    dabmux : dabmux::DabMux,
 }
 
 type SharedState = Arc<Mutex<AppState>>;
@@ -22,6 +24,7 @@ async fn main() -> std::io::Result<()> {
 
     let shared_state = Arc::new(Mutex::new(AppState {
         conf : conf.clone(),
+        dabmux : dabmux::DabMux::new(),
     }));
 
     let port = 3000;

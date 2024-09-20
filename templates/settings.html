@@ -3,34 +3,37 @@
   <h1>ODR-DabMux Settings</h1>
   <div class="section">
     <h2>General</h2>
-    <div><label for="instance_name">Name of this instance:</label><input class="textinput" type="text" id="instance_name" value="{{ conf.instance_name }}"></div>
-    <div>
+    <div class="setting-entry">
+      <label for="instance_name">Name of this instance:</label><input class="textinput" type="text" id="instance_name" value="{{ conf.instance_name }}">
+    </div>
+    <div class="setting-entry">
       <label for="tist">Enable TIST:</label>
       <input type="checkbox" id="tist" value="Enable TIST"
              {% if conf.tist %} checked {% endif %} >
     </div>
-    <div>
+    <div class="setting-entry">
       <label for="tist_offset">TIST offset:</label>
       <input class="textinput" type="text" id="tist_offset" placeholder="TIST offset in seconds" value="{{ conf.tist_offset }}">
     </div>
-    <div>
+    <div class="setting-entry">
       <label for="ensemble_id">EId:</label>
       <input class="textinput" type="text" id="ensemble_id" placeholder="Ensemble ID in hex" value="{{ conf.ensemble_id_hex() }}">
     </div>
-    <div>
+    <div class="setting-entry">
       <label for="ensemble_ecc">ECC:</label>
       <input class="textinput" type="text" id="ensemble_ecc" placeholder="Ensemble ECC in hex" value="{{ conf.ensemble_ecc_hex() }}">
     </div>
-    <div>
+    <div class="setting-entry">
       <label for="ensemble_label">Label and shortlabel:</label>
       <input class="textinput" type="text" id="ensemble_label" placeholder="Ensemble Label" value="{{ conf.ensemble_label }}">
       <input class="textinput" type="text" id="ensemble_shortlabel" placeholder="Ensemble Short Label" value="{{ conf.ensemble_shortlabel }}">
     </div>
-    <div>
+    <div class="setting-entry">
       <label for="output_edi_port">EDI TCP Listen Port</label>
       <input class="textinput" type="text" id="output_edi_port" placeholder="TCP Listen Port for EDI Output" value="{{ conf.output_edi_port }}">
     </div>
   </div>
+  <div class="section"><h2>Services:</h2></div>
   <div class="section">
     <template id="service_template">
       <p class="service">

@@ -24,6 +24,7 @@ pub async fn serve(port: u16, shared_state: SharedState) {
         .route("/", get(dashboard))
         .route("/settings", get(show_settings))
         .route("/api/settings", post(post_settings))
+        .route("/api/set_rc", post(post_rc))
         .nest_service("/static", ServeDir::new("static"))
         /* For an example for timeouts and tracing, have a look at the git history */
         .with_state(shared_state);
@@ -45,7 +46,7 @@ impl ActivePage {
     // Used by templates/head.html to include the correct js files in <head>
     fn styles(&self) -> Vec<&'static str> {
         match self {
-            ActivePage::Dashboard => vec![],
+            ActivePage::Dashboard => vec!["dashboard.js", "main.js"],
             ActivePage::Settings => vec!["settings.js", "main.js"],
             ActivePage::None => vec![],
         }
@@ -58,18 +59,59 @@ struct DashboardTemplate<'a> {
     title: &'a str,
     page: ActivePage,
     conf: config::Config,
+    errors: Option<String>,
+    params: Vec<crate::dabmux::Param>,
 }
 
 async fn dashboard(State(state): State<SharedState>) -> DashboardTemplate<'static> {
-    let conf = {
-        let st = state.lock().unwrap();
-        st.conf.clone()
+    let (conf, params_result) = {
+        let mut st = state.lock().unwrap();
+
+        let params_result = st.dabmux.get_rc_parameters();
+
+        (st.conf.clone(), params_result)
+    };
+
+    let (params, errors) = match params_result {
+        Ok(v) => {
+            (v, None)
+        },
+        Err(e) => {
+            (Vec::new(), Some(format!("{}", e)))
+        },
     };
 
     DashboardTemplate {
         title: "Dashboard",
         conf,
         page: ActivePage::Dashboard,
+        params,
+        errors,
+    }
+}
+
+#[derive(Deserialize)]
+struct SetRc {
+    pub module : String,
+    pub param : String,
+    pub value : String,
+}
+
+async fn post_rc(
+    State(state): State<SharedState>,
+    Json(set_rc): Json<SetRc>) -> (StatusCode, Json<serde_json::Value>) {
+
+    let set_rc_result = {
+        let mut st = state.lock().unwrap();
+        st.dabmux.set_rc_parameter(&set_rc.module, &set_rc.param, &set_rc.value)
+    };
+
+    match set_rc_result {
+        Ok(v) => (StatusCode::OK, Json(v)),
+        Err(e) => {
+            let e_str = serde_json::Value::String(e.to_string());
+            (StatusCode::BAD_REQUEST, Json(e_str))
+        },
     }
 }
 

@@ -7,6 +7,21 @@
   </div>
   <div class="section">
     <h2>Remote control</h2>
+
+    {% if let Some(e) = errors %}
+    <p>Error!: {{ e }}</p>
+    {% endif %}
+
+    <table>
+      <tr><th>Module</th><th>Parameter</th><th>Value</th></tr>
+      {% for p in params %}
+      <tr><td>{{ p.module }}</td><td>{{ p.param }}</td>
+        <td>
+          <input class="textinput" type="text" value="{{ p.value }}">
+          <button class="btn" type="button" onclick="btn_dash_update(this, '{{ p.module }}', '{{ p.param }}')">Update</button>
+        </td></tr>
+      {% endfor %}
+    </table>
   </div>
 </div>
 {% include "foot.html" %}
