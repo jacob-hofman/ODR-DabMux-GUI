@@ -13,4 +13,5 @@ async function post(url, data) {
         const text = await response.text();
         alert(`Error Sending: ${response.statusText} ${text}`);
     }
+    return response.ok;
 }

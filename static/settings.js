@@ -10,6 +10,9 @@ async function btn_settings_remove_service(element_clicked) {
 }
 
 async function btn_settings_send() {
+    const confirmation_element = document.getElementById('settings_send_confirmation');
+    confirmation_element.innerHTML = "";
+
     let data = {
         'instance_name': document.getElementById('instance_name').value,
         'dabmux_config_location': document.getElementById('dabmux_config_location').value,
@@ -38,6 +41,12 @@ async function btn_settings_send() {
         });
     }
 
-    await post('/api/settings', data);
+    const success = await post('/api/settings', data);
+    if (success) {
+        confirmation_element.innerHTML = "Configuration successfully written";
+    }
+    else {
+        confirmation_element.innerHTML = "Failed to write config!";
+    }
 }
 
