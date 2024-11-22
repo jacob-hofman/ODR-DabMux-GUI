@@ -23,6 +23,7 @@ async function btn_settings_send() {
         'ensemble_label': document.getElementById('ensemble_label').value,
         'ensemble_shortlabel': document.getElementById('ensemble_shortlabel').value,
         'output_edi_port': parseInt(document.getElementById('output_edi_port').value, 10),
+        'output_zmq_port': parseInt(document.getElementById('output_zmq_port').value, 10),
         'services': [],
     };
 

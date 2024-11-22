@@ -77,6 +77,7 @@ pub struct Config {
     pub ensemble_label: String,
     pub ensemble_shortlabel: String,
     pub output_edi_port: u16,
+    pub output_zmq_port: u16,
     pub services: Vec<Service>,
 }
 
@@ -102,6 +103,7 @@ impl Default for Config {
             ensemble_label: "OpenDigitalRadio".to_owned(),
             ensemble_shortlabel: "ODR".to_owned(),
             output_edi_port: 8951,
+            output_zmq_port: 8851,
             services: vec![
                Service {
                    unique_id: "nothing".to_owned(),
@@ -197,6 +199,10 @@ impl Config {
             "components": components,
             "outputs": {
                 "throttle": "simul://",
+                "zeromq": {
+                    "endpoint": format!("tcp://*:{}", self.output_zmq_port),
+                    "allowmetadata": false
+                },
                 "edi": {
                     "destinations": {
                         "example_tcp": {
