@@ -11,8 +11,6 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-use std::collections::HashMap;
-
 use anyhow::anyhow;
 use serde::Deserialize;
 use serde_json::Value;
@@ -173,14 +171,16 @@ impl DabMux {
             match values_json.get("values")
                 .and_then(|v| v.as_object()) {
                 Some(v) => {
-                    let mut input_stats : HashMap<String, InputStat> = HashMap::new();
+                    let mut input_stats : Vec<(String, InputStat)> = Vec::new();
 
                     for (k, v) in v {
                         let is = v.get("inputstat")
                             .ok_or(anyhow!("inputstat missing"))?;
                         let stat : InputStat = serde_json::from_value(is.clone())?;
-                        input_stats.insert(k.clone(), stat);
+                        input_stats.push((k.clone(), stat));
                     }
+
+                    input_stats.sort_by_key(|v| v.0.clone());
 
                     Ok(Stats { version, input_stats })
                 },
@@ -196,7 +196,7 @@ impl DabMux {
 #[derive(Debug)]
 pub struct Stats {
     pub version : String,
-    pub input_stats : HashMap<String, InputStat>,
+    pub input_stats : Vec<(String, InputStat)>,
 }
 
 #[derive(Debug, Deserialize)]
