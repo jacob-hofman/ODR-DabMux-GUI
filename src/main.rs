@@ -14,6 +14,7 @@
 
 use std::sync::{Arc, Mutex};
 use log::info;
+use argparse::{ArgumentParser, StoreTrue, Store};
 
 mod ui;
 mod config;
@@ -40,7 +41,15 @@ async fn main() -> std::io::Result<()> {
         dabmux : dabmux::DabMux::new(),
     }));
 
-    let port = 3000;
+    let mut port = 3000;
+    {
+        let mut ap = ArgumentParser::new();
+        ap.set_description("odr dabmux gui");
+        ap.refer(&mut prt)
+            .add_option(&["-p", "--port"], Store, "web gui port number");
+        ap.parse_args_or_exit();
+    }
+
     info!("Setting up listener on port {port}");
     ui::serve(port, shared_state).await;
     Ok(())
