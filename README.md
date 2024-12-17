@@ -8,7 +8,14 @@ Goals of this Web User Interface:
 Complilation prerequisites
 
  * Install Rust, most probably through [rustup](https://rustup.rs/)
- * Type `cargo run`
+ * Compile and install `odr-dabmux-gui` :
+   ```
+   sudo -E $HOME/.cargo/bin/cargo install --root /usr/local --path .
+   ```
+ * Run `odr-dabmux-gui` :
+   ```
+   odr-dabmux-gui --port 3000
+   ```
  * Navigate to http://localhost:3000
  * Create a new Ensemble configuration in the Settings page, and specify where to write the odr-dabmux json config file
  * Execute `odr-dabmux` with one argument: the configuration file
