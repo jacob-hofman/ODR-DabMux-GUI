@@ -45,7 +45,7 @@ async fn main() -> std::io::Result<()> {
     {
         let mut ap = ArgumentParser::new();
         ap.set_description("odr dabmux gui");
-        ap.refer(&mut prt)
+        ap.refer(&mut port)
             .add_option(&["-p", "--port"], Store, "web gui port number");
         ap.parse_args_or_exit();
     }
