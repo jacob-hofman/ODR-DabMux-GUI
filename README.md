@@ -5,13 +5,20 @@ Goals of this Web User Interface:
  * Simplify creating basic ODR-DabMux DAB Ensemble configurations
  * Interact with the ODR-DabMux Remote Control through a web UI
 
-Complilation prerequisites
-
+### Build
  * Install Rust, most probably through [rustup](https://rustup.rs/)
- * Compile and install `odr-dabmux-gui` :
+ * Compile `odr-dabmux-gui` :
    ```
-   sudo -E $HOME/.cargo/bin/cargo install --root /usr/local --path .
+   cargo build --release
    ```
+
+### Installation
+The compiled executable is self-contained and does not require any additional file from the project directory. You can copy it to any directory in your path, for example:
+  ```
+  sudo cp target/release/odr-dabmux-gui /usr/local/bin
+  ```
+
+### Usage
  * Run `odr-dabmux-gui` :
    ```
    odr-dabmux-gui --port 3000
