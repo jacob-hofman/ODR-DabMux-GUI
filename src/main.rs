@@ -14,7 +14,7 @@
 
 use std::sync::{Arc, Mutex};
 use log::info;
-use argparse::{ArgumentParser, StoreTrue, Store};
+use argparse::{ArgumentParser, Store};
 
 mod ui;
 mod config;

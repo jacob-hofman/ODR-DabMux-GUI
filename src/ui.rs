@@ -23,10 +23,14 @@ use axum::{
 use log::info;
 use serde::Deserialize;
 
-use tower_http::services::ServeDir;
+use tower_serve_static::{ServeDir};
 
 use crate::config;
 use crate::SharedState;
+
+use include_dir::{include_dir, Dir};
+
+static STATIC_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/static");
 
 pub async fn serve(port: u16, shared_state: SharedState) {
     let app = Router::new()
@@ -34,7 +38,7 @@ pub async fn serve(port: u16, shared_state: SharedState) {
         .route("/settings", get(show_settings))
         .route("/api/settings", post(post_settings))
         .route("/api/set_rc", post(post_rc))
-        .nest_service("/static", ServeDir::new("static"))
+        .nest_service("/static", ServeDir::new(&STATIC_DIR))
         /* For an example for timeouts and tracing, have a look at the git history */
         .with_state(shared_state);
 
